@@ -3,13 +3,13 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from app.forms import RegistrationForm
 from app.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 
 # Create your views here.
 @login_required
 def index(request):
-    return HttpResponse('Hello World')
+    return render(request, "home.html")
 
 def registration(request: HttpRequest):
     form = RegistrationForm()
