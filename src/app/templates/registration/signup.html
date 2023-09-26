@@ -7,6 +7,13 @@
         <div class="card">
           <!-- <div class="card-header">{{ block.super }}</div> -->
           <div class="card-body">
+            {% if error %}
+            <!-- Error toast -->
+            <div class="alert alert-danger" role="alert">
+                {{error}}
+            </div>
+            <!-- End of error toast -->
+            {% endif %}
             <form method="post" action="/signup/">
               {% csrf_token %}
               <div class="form-group">
