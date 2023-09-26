@@ -30,3 +30,21 @@ def registration(request: HttpRequest):
             return redirect("/")
 
     return render(request, 'registration/signup.html', {'form': form})
+
+
+def signin(request: HttpRequest):
+    if request.method == 'POST':
+
+        login_parameter = request.POST["login"]
+        password = request.POST["password"]
+
+        user = authenticate(request, user=login_parameter, password=password)
+
+        if user is not None:
+            login(request, user)
+
+            return redirect("/")
+
+        return render(request, "registration/login.html", {'error': 'Usuário e/ou senha incorretos'})
+
+    return render(request, "registration/login.html")
