@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from app.forms import RegistrationForm
 from app.models import User
 from django.contrib.auth import authenticate, login
 from django.db.models import Q
@@ -10,24 +11,22 @@ from django.db.models import Q
 def index(request):
     return HttpResponse('Hello World')
 
-def registration(request):
-    return render(request, 'registration/signup.html')
+def registration(request: HttpRequest):
+    form = RegistrationForm()
 
-def create_user(request: HttpRequest):
-    if len(request.POST.keys()) == 0:
-        return redirect("/registration")
+    if request.method == 'POST':
 
-    password =  request.POST["password"]
-    email = request.POST["email"]
-    username = request.POST["username"]
+        form = RegistrationForm(request.POST)
 
-    user_already_registered = User.objects.filter(Q(email=email) | Q(username=username)).first()
+        if form.is_valid():
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password']
+            )
 
-    if user_already_registered is not None:
-        return render(request, "registration/signup.html", {'error': 'Username ou email já registrados'})
+            login(request, user)
 
-    user = User.objects.create_user(password=password, username=username, email=email)
-    login(request, user)
+            return redirect("/")
 
-
-    return redirect("/")
+    return render(request, 'registration/signup.html', {'form': form})
