@@ -9,7 +9,10 @@ from django.db.models import Q
 # Create your views here.
 @login_required
 def index(request):
-    return render(request, "home.html")
+
+    users = User.objects.all()
+
+    return render(request, "users-list.html", {'users': users})
 
 def registration(request: HttpRequest):
     form = RegistrationForm()
