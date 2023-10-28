@@ -1,10 +1,9 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from app.forms import RegistrationForm
-from app.models import User
-from django.contrib.auth import authenticate, login, logout
-from django.db.models import Q
+from app.models import User, Message
+from django.contrib.auth import authenticate, login
 
 # Create your views here.
 
@@ -40,7 +39,7 @@ def signin(request: HttpRequest):
         if user is not None:
             login(request, user)
 
-            return redirect(request.GET.get("next", "/"))
+            return redirect("/")
 
         return render(request, "registration/login.html", {'error': 'Usuário e/ou senha incorretos'})
 
@@ -56,6 +55,21 @@ def index(request):
 
 @login_required
 def user_details(request, id):
-    user = User.objects.get(id=id)
+    user = User.objects.select_related().get(id=id)
+
+    user.messages = user.messages_received.all()
 
     return render(request, "user-details.html", {'user': user})
+
+
+@login_required
+def user_message(request: HttpRequest, id):
+    if(request.method == 'POST'):
+        
+        Message.objects.create(
+            receiver_id=id,
+            sender_id=request.user.id,
+            message=request.POST.get('message')
+        )
+
+    return redirect(f"/users/{id}")
