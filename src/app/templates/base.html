@@ -10,7 +10,7 @@
     <nav class="navbar">
         <div class="container">
             <!-- Add a logout button on the left-most side -->
-            <h2 class="navbar-brand">Message Me</h2>
+            <a href="/" class="navbar-brand">Message Me</a>
             {%if user.is_authenticated %}
             <a class="link-underline-primary float-end" href="{% url 'logout' %}">
                 Logout

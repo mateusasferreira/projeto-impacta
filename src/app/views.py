@@ -7,12 +7,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 
 # Create your views here.
-@login_required
-def index(request):
-
-    users = User.objects.all()
-
-    return render(request, "users-list.html", {'users': users})
 
 def registration(request: HttpRequest):
     form = RegistrationForm()
@@ -46,8 +40,22 @@ def signin(request: HttpRequest):
         if user is not None:
             login(request, user)
 
-            return redirect("/")
+            return redirect(request.GET.get("next", "/"))
 
         return render(request, "registration/login.html", {'error': 'Usuário e/ou senha incorretos'})
 
     return render(request, "registration/login.html")
+
+
+@login_required
+def index(request):
+
+    users = User.objects.all()
+
+    return render(request, "users-list.html", {'users': users})
+
+@login_required
+def user_details(request, id):
+    user = User.objects.get(id=id)
+
+    return render(request, "user-details.html", {'user': user})
