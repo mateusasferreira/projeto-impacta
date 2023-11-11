@@ -26,7 +26,15 @@
                 <a href="/users/{{message.sender_id}}">
                     @{{message.sender.username}}:
                 </a href="/users/{{message.sender_id}}">
-                <p>{{message.message}}</p>
+                <div class="d-flex justify-content-between">
+                    <p>{{message.message}}</p>
+                    {% if logged_user == message.sender or logged_user == message.receiver %}
+                        <form class="float-end" action="{% url 'delete_message' message.id %}?next=/users/{{ user.id }}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-danger" type="submit" >Deletar</button>
+                        </form>
+                    {% endif%}
+                </div>
             </li>
         {% endfor %}
     </ul>

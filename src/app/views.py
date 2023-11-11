@@ -1,6 +1,7 @@
-from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from app.forms import RegistrationForm
 from app.models import User, Message
 from django.contrib.auth import authenticate, login
@@ -59,7 +60,7 @@ def user_details(request, id):
 
     user.messages = user.messages_received.all()
 
-    return render(request, "user-details.html", {'user': user})
+    return render(request, "user-details.html", {'user': user, 'logged_user': request.user})
 
 
 @login_required
@@ -73,3 +74,17 @@ def user_message(request: HttpRequest, id):
         )
 
     return redirect(f"/users/{id}")
+
+@login_required
+def delete_message(request: HttpRequest, id):
+    if (request.method == 'POST'):
+        message = get_object_or_404(Message, id=id)
+        
+        if request.user == message.sender or request.user == message.receiver:
+            message.delete()
+
+        next_url = request.GET.get('next', '')
+        return redirect(next_url)
+        
+
+
