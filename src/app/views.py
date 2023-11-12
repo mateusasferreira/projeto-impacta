@@ -1,14 +1,15 @@
+from django.views.generic import ListView, DetailView
 from django import forms
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from app.forms import LoginForm, RegistrationForm
 from app.models import User, Message
 from django.contrib.auth import authenticate, login
 from django.views.generic.edit import FormView
-from django.contrib.auth import views as auth_views
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class RegistrationView(FormView):
     template_name = "registration/signup.html"
@@ -51,20 +52,16 @@ class LoginView(FormView):
         return super().form_invalid(form=form)
 
 
-@login_required
-def index(request):
+class UsersList(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'users-list.html'
+    
 
-    users = User.objects.all()
-
-    return render(request, "users-list.html", {'users': users})
-
-@login_required
-def user_details(request, id):
-    user = User.objects.select_related().get(id=id)
-
-    user.messages = user.messages_received.all()
-
-    return render(request, "user-details.html", {'user': user, 'logged_user': request.user})
+class UserDetails(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'user-details.html'  # Create this template in your templates folder
+    context_object_name = 'user'  # This is the variable name available in the template
+    pk_url_kwarg = 'id' 
 
 
 @login_required
