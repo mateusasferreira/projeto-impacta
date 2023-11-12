@@ -5,28 +5,24 @@ from django.urls import reverse
 from app.forms import RegistrationForm
 from app.models import User, Message
 from django.contrib.auth import authenticate, login
-
+from django.views.generic.edit import FormView
 # Create your views here.
 
-def registration(request: HttpRequest):
-    form = RegistrationForm()
+class RegistrationView(FormView):
+    template_name = "registration/signup.html"
+    form_class = RegistrationForm
+    success_url = "/"
 
-    if request.method == 'POST':
+    def form_valid(self, form):
+        user = User.objects.create_user(
+            username=form.cleaned_data['username'],
+            email=form.cleaned_data['email'],
+            password=form.cleaned_data['password']
+        )
 
-        form = RegistrationForm(request.POST)
-
-        if form.is_valid():
-            user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password']
-            )
-
-            login(request, user)
-
-            return redirect("/")
-
-    return render(request, 'registration/signup.html', {'form': form})
+        login(self.request, user)
+        
+        return super().form_valid(form)
 
 
 def signin(request: HttpRequest):
