@@ -1,7 +1,7 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 from django import forms
 from django.http import HttpRequest
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from app.forms import LoginForm, RegistrationForm
@@ -55,13 +55,18 @@ class LoginView(FormView):
 class UsersList(LoginRequiredMixin, ListView):
     model = User
     template_name = 'users-list.html'
+
+    def get_queryset(self):
+        return User.objects.prefetch_related('messages_received').all()
     
 
-class UserDetails(LoginRequiredMixin, DetailView):
-    model = User
-    template_name = 'user-details.html'  # Create this template in your templates folder
-    context_object_name = 'user'  # This is the variable name available in the template
-    pk_url_kwarg = 'id' 
+@login_required
+def user_details(request, id):
+    user = User.objects.select_related().get(id=id)
+
+    user.messages = user.messages_received.all()
+
+    return render(request, "user-details.html", {'user': user, 'logged_user': request.user})
 
 
 @login_required
