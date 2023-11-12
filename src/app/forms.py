@@ -28,3 +28,13 @@ class RegistrationForm(forms.Form):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Email já registrado')
         return email
+
+class LoginForm(forms.Form):
+    login = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label='Username ou email'
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        label='Senha'
+    )

@@ -1,12 +1,14 @@
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django import forms
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from app.forms import RegistrationForm
+from app.forms import LoginForm, RegistrationForm
 from app.models import User, Message
 from django.contrib.auth import authenticate, login
 from django.views.generic.edit import FormView
-# Create your views here.
+from django.contrib.auth import views as auth_views
+from django.contrib import messages
 
 class RegistrationView(FormView):
     template_name = "registration/signup.html"
@@ -24,23 +26,29 @@ class RegistrationView(FormView):
         
         return super().form_valid(form)
 
+class LoginView(FormView):
+    template_name = "registration/login.html"
+    form_class = LoginForm
 
-def signin(request: HttpRequest):
-    if request.method == 'POST':
+    def form_valid(self, form: forms.Form):
+        login_parameter = form.cleaned_data["login"]
+        password = form.cleaned_data["password"]
 
-        login_parameter = request.POST["login"]
-        password = request.POST["password"]
-
-        user = authenticate(request, user=login_parameter, password=password)
+        user = authenticate(self.request, user=login_parameter, password=password)
 
         if user is not None:
-            login(request, user)
+            login(self.request, user)
+            redirect_url = self.request.POST.get('next', '')
 
-            return redirect("/")
+            if len(redirect_url) == 0:
+                redirect_url = "/"
+            
+            
+            return redirect(redirect_url)
+        
+        messages.error(self.request, "Usuário e/ou senha inválidos")
 
-        return render(request, "registration/login.html", {'error': 'Usuário e/ou senha incorretos'})
-
-    return render(request, "registration/login.html")
+        return super().form_invalid(form=form)
 
 
 @login_required
