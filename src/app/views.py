@@ -1,4 +1,6 @@
-from django.views.generic import ListView
+from typing import Any
+from django.db import models
+from django.views.generic import ListView, DetailView
 from django import forms
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -56,17 +58,24 @@ class UsersList(LoginRequiredMixin, ListView):
     model = User
     template_name = 'users-list.html'
 
-    def get_queryset(self):
-        return User.objects.prefetch_related('messages_received').all()
-    
 
-@login_required
-def user_details(request, id):
-    user = User.objects.select_related().get(id=id)
+class UserDetails(DetailView):
+    template_name = "user-details.html"
+    pk_url_kwarg = "id"
+    queryset = User.objects.prefetch_related('messages_received').all()
 
-    user.messages = user.messages_received.all()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["logged_user"] = self.request.user
+        return context
 
-    return render(request, "user-details.html", {'user': user, 'logged_user': request.user})
+# @login_required
+# def user_details(request, id):
+#     user = User.objects.select_related().get(id=id)
+
+#     user.messages = user.messages_received.all()
+
+#     return render(request, "user-details.html", {'user': user, 'logged_user': request.user})
 
 
 @login_required

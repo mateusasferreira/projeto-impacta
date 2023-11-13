@@ -19,9 +19,8 @@
             <button class="btn btn-outline-secondary" type="submit">Enviar</button>
         </div>
     </form>
-    {% if user.messages %}
     <ul class="list-group">
-        {% for message in user.messages %}
+        {% for message in user.messages_received.all %}
             <li class="list-group-item">
                 <a href="/users/{{message.sender_id}}">
                     @{{message.sender.username}}:
@@ -38,6 +37,5 @@
             </li>
         {% endfor %}
     </ul>
-    {% endif %}
   </div>
 {% endblock %}
