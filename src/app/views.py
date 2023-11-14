@@ -1,11 +1,9 @@
-from typing import Any
-from django.db import models
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
 from django import forms
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from app.forms import LoginForm, RegistrationForm
 from app.models import User, Message
 from django.contrib.auth import authenticate, login
@@ -69,26 +67,19 @@ class UserDetails(DetailView):
         context["logged_user"] = self.request.user
         return context
 
-# @login_required
-# def user_details(request, id):
-#     user = User.objects.select_related().get(id=id)
 
-#     user.messages = user.messages_received.all()
+class UserMessageCreateView(CreateView):
+    model = Message
+    fields = ['message']
 
-#     return render(request, "user-details.html", {'user': user, 'logged_user': request.user})
-
-
-@login_required
-def user_message(request: HttpRequest, id):
-    if(request.method == 'POST'):
-        
-        Message.objects.create(
-            receiver_id=id,
-            sender_id=request.user.id,
-            message=request.POST.get('message')
-        )
-
-    return redirect(f"/users/{id}")
+    def form_valid(self, form):
+        form.instance.receiver_id = self.kwargs['id']
+        form.instance.sender = self.request.user
+        return super().form_valid(form)
+    
+    def get_success_url(self) -> str:
+        success_url = reverse('user-details', args=[self.kwargs['id']])
+        return success_url
 
 @login_required
 def delete_message(request: HttpRequest, id):
