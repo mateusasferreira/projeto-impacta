@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login
 from django.views.generic.edit import FormView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 
 class RegistrationView(FormView):
     template_name = "registration/signup.html"
@@ -55,6 +56,7 @@ class LoginView(FormView):
 class UsersList(LoginRequiredMixin, ListView):
     model = User
     template_name = 'users-list.html'
+    paginate_by = 10
 
 
 class UserDetails(DetailView):
@@ -65,6 +67,12 @@ class UserDetails(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["logged_user"] = self.request.user
+
+        messages_received = self.object.messages_received.all()
+        page = self.request.GET.get('page', 1)
+        paginator = Paginator(messages_received, 5)
+        context["messages"] = paginator.page(page)
+
         return context
 
 

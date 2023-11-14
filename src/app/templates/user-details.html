@@ -20,7 +20,7 @@
         </div>
     </form>
     <ul class="list-group">
-        {% for message in user.messages_received.all %}
+        {% for message in messages %}
             <li class="list-group-item">
                 <a href="/users/{{message.sender_id}}">
                     @{{message.sender.username}}:
@@ -35,7 +35,8 @@
                     {% endif%}
                 </div>
             </li>
-        {% endfor %}
+            {% endfor %}
+        {% include 'includes/pagination.html' with page_obj=messages %}
     </ul>
   </div>
 {% endblock %}
