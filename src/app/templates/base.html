@@ -12,9 +12,13 @@
             <!-- Add a logout button on the left-most side -->
             <a href="/" class="navbar-brand">Message Me</a>
             {%if user.is_authenticated %}
-            <a class="link-underline-primary float-end" href="{% url 'logout' %}">
+            <!-- <a  href="{% url 'logout' %}">
                 Logout
-            </a>
+            </a> -->
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="link-underline-primary float-end" type="submit">logout</button>
+            </form>
             {% endif %}
             <!-- ... (the rest of your navigation menu) ... -->
         </div>

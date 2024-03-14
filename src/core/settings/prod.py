@@ -1,7 +1,11 @@
 from .base import *
 import os
 
-DEBUG = False
+DEBUG = True
+
+ALLOWED_HOSTS = [
+    "*"
+]
 
 DATABASES = {
     'default': {
