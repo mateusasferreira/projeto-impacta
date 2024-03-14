@@ -1,9 +1,10 @@
 FROM python:3.10
 
 RUN apt-get update && apt-get install -y \
+    build-essential \
     netcat-traditional \
-    libpq-dev postgresql \
-    postgresql-contrib
+    libpq-dev \
+    postgresql
 
 WORKDIR /code
 
