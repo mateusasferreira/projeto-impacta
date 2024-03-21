@@ -17,3 +17,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     },
 }
+
+STATIC_ROOT = '/var/www/static/'
+
