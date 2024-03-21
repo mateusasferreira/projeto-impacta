@@ -1,9 +1,9 @@
 from django.views.generic import ListView, DetailView, CreateView
 from django import forms
-from django.http import HttpRequest, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from app.forms import LoginForm, RegistrationForm
 from app.models import User, Message
 from django.contrib.auth import authenticate, login
@@ -24,7 +24,7 @@ class RegistrationView(FormView):
             password=form.cleaned_data['password']
         )
 
-        login(self.request, user)
+        login(self.request, user, backend='app.backends.EmailOrUsernameModelBackend')
         
         return super().form_valid(form)
 
